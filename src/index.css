@@ -71,6 +71,45 @@ html {
 /* ------------------------------------------------------------- */
 /* AMBIENT PRODUCT LIGHTING & TING SHIMMER EFFECTS               */
 /* ------------------------------------------------------------- */
+/* Infinite Continuous Color Animated Border for Product Cards */
+.product-card-continuous-border {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    #F59E0B 0%,
+    #EA580C 16%,
+    #E11D48 33%,
+    #9333EA 50%,
+    #2563EB 66%,
+    #059669 83%,
+    #F59E0B 100%
+  );
+  background-size: 300% 300%;
+  animation: continuousColorShift 4s ease infinite;
+  box-shadow: 0 4px 16px -2px rgba(245, 158, 11, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card-continuous-border:hover {
+  transform: translateY(-4px);
+  animation-duration: 2s;
+  box-shadow: 
+    0 16px 36px -4px rgba(245, 158, 11, 0.35),
+    0 0 20px 2px rgba(234, 88, 12, 0.3);
+}
+
+@keyframes continuousColorShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .ambient-product-card {
   position: relative;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);

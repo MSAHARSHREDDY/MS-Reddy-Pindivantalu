@@ -25,7 +25,7 @@ import { Address, Order } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { api } from '../services/api';
-import { initiateRazorpayPayment, createRazorpayHostedPaymentLink } from '../services/razorpay';
+import { initiateRazorpayPayment } from '../services/razorpay';
 import { RazorpayModal } from '../components/RazorpayModal';
 
 interface CheckoutViewProps {
@@ -63,21 +63,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
 
   // Payment method
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'razorpay'>('cod');
-  const [onlineSubMethod, setOnlineSubMethod] = useState<'hosted' | 'modal'>('hosted');
   const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
   const [pendingAddress, setPendingAddress] = useState<Address | null>(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // Razorpay Hosted Gateway states (bypasses domain mismatch)
-  const [hostedModalOpen, setHostedModalOpen] = useState(false);
-  const [hostedPaymentUrl, setHostedPaymentUrl] = useState('');
-  const [hostedPaymentId, setHostedPaymentId] = useState('');
-  const [hostedPaymentStatus, setHostedPaymentStatus] = useState<'waiting' | 'paid' | 'checking'>('waiting');
-  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
-
-  const isDomainMismatchLikely = typeof window !== 'undefined' && !window.location.hostname.includes('sahadeep-reddys.in');
 
   const subtotal = cart.subtotal;
   const delivery = 0;
@@ -94,56 +84,6 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
       }
     }
   }, [user]);
-
-  // Check URL params if returning from Razorpay hosted payment link
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const urlParams = new URLSearchParams(window.location.search);
-    const plinkId = urlParams.get('razorpay_payment_link_id') || urlParams.get('payment_link_id');
-    const plinkStatus = urlParams.get('razorpay_payment_link_status');
-    const rzpPaymentId = urlParams.get('razorpay_payment_id');
-
-    if (plinkId && (plinkStatus === 'paid' || rzpPaymentId)) {
-      const savedAddrRaw = sessionStorage.getItem('pindi_pending_address');
-      if (savedAddrRaw) {
-        try {
-          const savedAddr = JSON.parse(savedAddrRaw);
-          const effectivePayId = rzpPaymentId || `plink_${plinkId}`;
-          executeFinalCheckout(savedAddr, 'razorpay', effectivePayId);
-          sessionStorage.removeItem('pindi_pending_address');
-          // Clean query params from address bar
-          window.history.replaceState({}, document.title, window.location.pathname);
-        } catch (e) {
-          console.error('Failed to parse saved address from session:', e);
-        }
-      }
-    }
-  }, []);
-
-  // Poll Razorpay payment link status in background when hosted modal is open
-  useEffect(() => {
-    let intervalId: any = null;
-    if (hostedModalOpen && hostedPaymentId && hostedPaymentStatus === 'waiting' && pendingAddress) {
-      intervalId = setInterval(async () => {
-        try {
-          const statusRes = await api.checkPaymentLinkStatus(hostedPaymentId);
-          if (statusRes.success && statusRes.isPaid) {
-            clearInterval(intervalId);
-            setHostedPaymentStatus('paid');
-            const payId = statusRes.payment_id || `plink_pay_${hostedPaymentId}`;
-            await executeFinalCheckout(pendingAddress, 'razorpay', payId);
-            setHostedModalOpen(false);
-          }
-        } catch {
-          // Keep polling silently
-        }
-      }, 3000);
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [hostedModalOpen, hostedPaymentId, hostedPaymentStatus, pendingAddress]);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,100 +198,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
         },
         onDismiss: () => {
           setLoading(false);
-          if (isDomainMismatchLikely) {
-            setError('Payment modal closed. Domain mismatch detected on preview URL (registered website: https://www.sahadeep-reddys.in/). Please use the Official Razorpay Gateway (rzp.io) below to complete your payment.');
-          } else {
-            setError('Payment was cancelled by user. You can retry when ready.');
-          }
+          setError('Payment modal closed. Click "Pay via Razorpay" below when ready to complete your payment.');
         },
       });
     } catch (err: any) {
       setLoading(false);
       setError(err.message || 'Payment processing failed. Please try again.');
-    }
-  };
-
-  const handlePayViaHostedLink = async (targetAddress: Address) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      // Save address in sessionStorage for URL redirect recovery
-      sessionStorage.setItem('pindi_pending_address', JSON.stringify(targetAddress));
-      sessionStorage.setItem('pindi_pending_notes', notes || '');
-
-      const callbackUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/?payment_method=razorpay_link`
-        : 'https://www.sahadeep-reddys.in/';
-
-      const res = await createRazorpayHostedPaymentLink({
-        amount: total,
-        customerName: targetAddress.fullName || user?.name || fullName || 'Valued Customer',
-        customerEmail: user?.email || `${targetAddress.phone.replace(/[^0-9]/g, '')}@sahadeep-reddys.in`,
-        customerPhone: targetAddress.phone || user?.phone || phone || '',
-        notes: {
-          address: `${targetAddress.street}, ${targetAddress.city}, ${targetAddress.pincode}`,
-          instructions: notes || '',
-        },
-        callbackUrl,
-      });
-
-      if (res.success && res.short_url) {
-        setHostedPaymentUrl(res.short_url);
-        setHostedPaymentId(res.payment_link_id);
-        setHostedPaymentStatus('waiting');
-        setHostedModalOpen(true);
-        setPendingAddress(targetAddress);
-
-        // Open official Razorpay hosted checkout page in a new window/tab
-        const popup = window.open(res.short_url, '_blank');
-        if (!popup) {
-          // Pop-up was blocked by browser; user can click the button inside the modal
-        }
-      } else {
-        setError(res.error || 'Failed to generate Razorpay payment link. Please try again.');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Error creating Razorpay payment link.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleManualCheckStatus = async () => {
-    if (!hostedPaymentId || !pendingAddress) return;
-    setIsCheckingStatus(true);
-    try {
-      const statusRes = await api.checkPaymentLinkStatus(hostedPaymentId);
-      if (statusRes.success && statusRes.isPaid) {
-        setHostedPaymentStatus('paid');
-        const payId = statusRes.payment_id || `plink_pay_${hostedPaymentId}`;
-        await executeFinalCheckout(pendingAddress, 'razorpay', payId);
-        setHostedModalOpen(false);
-      } else {
-        setError('Payment has not been completed on Razorpay yet. Please complete the transaction on the Razorpay screen and click verify again.');
-      }
-    } catch (err: any) {
-      setError('Could not verify status: ' + (err.message || 'Please try again.'));
-    } finally {
-      setIsCheckingStatus(false);
-    }
-  };
-
-  const handleOpenRazorpay = () => {
-    setError('');
-    if (cart.items.length === 0) {
-      setError('Your cart is empty. Please add snacks before checking out.');
-      return;
-    }
-    const addr = resolveAddress();
-    if (!addr) return;
-    setPendingAddress(addr);
-
-    if (onlineSubMethod === 'modal') {
-      handleRazorpayPayment(addr);
-    } else {
-      handlePayViaHostedLink(addr);
     }
   };
 
@@ -369,11 +221,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
 
     if (paymentMethod === 'razorpay') {
       setPendingAddress(targetAddress);
-      if (onlineSubMethod === 'modal') {
-        await handleRazorpayPayment(targetAddress);
-      } else {
-        await handlePayViaHostedLink(targetAddress);
-      }
+      await handleRazorpayPayment(targetAddress);
       return;
     }
 
@@ -593,24 +441,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
                     </div>
                   )}
                   {(error.toLowerCase().includes('mismatch') || error.toLowerCase().includes('website') || error.toLowerCase().includes('domain')) && (
-                    <div className="pt-1.5 space-y-2 text-[11px] text-amber-900 leading-relaxed border-t border-amber-200">
+                    <div className="pt-1.5 space-y-1 text-[11px] text-amber-900 leading-relaxed border-t border-amber-200">
                       <p>
-                        <strong>Why did this happen?</strong> Your Razorpay account is in <strong>Live Mode</strong> registered for <code className="bg-amber-100 px-1 py-0.5 rounded font-mono font-semibold">https://www.sahadeep-reddys.in/</code>. Razorpay's security blocks standard popup checkouts on any preview/staging URLs.
+                        <strong>Note:</strong> Your Razorpay account is registered for <code className="bg-amber-100 px-1 py-0.5 rounded font-mono font-semibold">https://www.sahadeep-reddys.in/</code>. On this production domain, the popup modal runs directly.
                       </p>
-                      <p>
-                        <strong>Instant Solution:</strong> Use Razorpay's <strong>Official Hosted Gateway (rzp.io)</strong>. It runs directly on Razorpay's verified domain and completely bypasses website mismatch restrictions!
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const addr = resolveAddress();
-                          if (addr) handlePayViaHostedLink(addr);
-                        }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg text-xs shadow-xs transition-colors cursor-pointer"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Pay ₹{total} via Official Gateway (rzp.io) Now</span>
-                      </button>
                     </div>
                   )}
                 </div>
@@ -898,12 +732,6 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
                       <span className="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2 py-0.5 rounded font-mono">
                         Razorpay Live
                       </span>
-                      {isDomainMismatchLikely && (
-                        <span className="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                          <Globe className="w-3 h-3" />
-                          <span>Preview Mode</span>
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-stone-500 mt-1">
                       Pay instantly with Google Pay, PhonePe, Paytm, UPI QR, Credit/Debit Cards, or NetBanking.
@@ -912,68 +740,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
                 </label>
 
                 {paymentMethod === 'razorpay' && (
-                  <div className="mt-3.5 pt-3.5 border-t border-amber-200/60 space-y-3">
-                    {/* Sub-method Selector */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setOnlineSubMethod('hosted')}
-                        className={`p-3 rounded-xl border text-left transition-all relative ${
-                          onlineSubMethod === 'hosted'
-                            ? 'border-blue-600 bg-blue-50/70 text-blue-950 ring-1 ring-blue-600'
-                            : 'border-stone-200 bg-white hover:bg-stone-50 text-stone-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className="font-bold text-xs flex items-center gap-1.5 text-blue-900">
-                            <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                            Official Gateway (rzp.io)
-                          </span>
-                          <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
-                            RECOMMENDED
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-stone-600 leading-tight">
-                          Hosted on official Razorpay domain. <strong>Zero domain mismatch errors</strong> on preview URLs!
-                        </p>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setOnlineSubMethod('modal')}
-                        className={`p-3 rounded-xl border text-left transition-all ${
-                          onlineSubMethod === 'modal'
-                            ? 'border-blue-600 bg-blue-50/70 text-blue-950 ring-1 ring-blue-600'
-                            : 'border-stone-200 bg-white hover:bg-stone-50 text-stone-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className="font-bold text-xs flex items-center gap-1.5 text-slate-800">
-                            <CreditCard className="w-3.5 h-3.5 text-stone-600 shrink-0" />
-                            Popup Modal
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-stone-600 leading-tight">
-                          Embedded checkout popup for registered website: <code className="font-mono text-[10px]">sahadeep-reddys.in</code>
-                        </p>
-                      </button>
+                  <div className="mt-3.5 pt-3.5 border-t border-amber-200/60 flex items-center justify-between flex-wrap gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 text-amber-900 font-medium">
+                      <Sparkles className="w-4 h-4 text-amber-700 shrink-0" />
+                      <span>Instant Razorpay popup checkout (UPI QR, GPay, PhonePe, Cards, NetBanking)</span>
                     </div>
-
-                    <div className="flex items-center justify-between gap-3 pt-1">
-                      <span className="text-[11px] text-stone-600 font-medium">
-                        {onlineSubMethod === 'hosted'
-                          ? 'Opens verified Razorpay payment page'
-                          : 'Opens embedded Razorpay modal'}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleOpenRazorpay}
-                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <span>{onlineSubMethod === 'hosted' ? 'Pay via rzp.io Now' : 'Open Razorpay Modal'}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <span className="text-[11px] text-emerald-800 bg-emerald-100/90 font-bold px-2 py-0.5 rounded-full">
+                      ✓ Instant & 100% Secure
+                    </span>
                   </div>
                 )}
               </div>
@@ -998,21 +772,20 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
               disabled={loading}
               className={`w-full py-4 mt-4 font-semibold text-base rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer ${
                 paymentMethod === 'razorpay'
-                  ? 'bg-blue-700 hover:bg-blue-800 text-white shadow-blue-900/20'
+                  ? 'bg-[#78350F] hover:bg-[#92400E] text-[#FEF3C7] shadow-amber-950/20 active:scale-[0.99]'
                   : 'bg-[#451A03] hover:bg-[#78350F] text-[#FEF3C7]'
               }`}
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Processing Order with Kitchen...</span>
+                  <span>Processing Order...</span>
                 </>
               ) : paymentMethod === 'razorpay' ? (
-                <span>
-                  {onlineSubMethod === 'hosted'
-                    ? `Pay ₹${total} via Official Gateway (rzp.io)`
-                    : `Pay Online with Razorpay · ₹${total}`}
-                </span>
+                <>
+                  <CreditCard className="w-5 h-5" />
+                  <span>Pay via Razorpay · ₹{total}</span>
+                </>
               ) : (
                 <span>Place Order · ₹{total} (COD)</span>
               )}
@@ -1072,115 +845,6 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
             }
           }}
         />
-      )}
-
-      {/* Razorpay Official Hosted Gateway Modal (rzp.io) */}
-      {hostedModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 text-slate-800 animate-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="bg-[#0C2340] text-white p-5 flex items-center justify-between border-b border-blue-900">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl text-white shadow-md">
-                  ₹
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-sm tracking-wide">Sahadeep Reddy's</span>
-                    <span className="text-[10px] bg-blue-500/30 text-blue-200 px-1.5 py-0.5 rounded font-mono font-medium">
-                      OFFICIAL
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-blue-200 font-mono mt-0.5">
-                    Razorpay Live Gateway
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-[10px] uppercase tracking-wider text-blue-300 font-semibold">Payable</div>
-                <div className="font-mono text-xl font-bold text-amber-300">₹{total}</div>
-              </div>
-            </div>
-
-            {/* Sub-header banner */}
-            <div className="bg-blue-50/90 px-5 py-2.5 border-b border-blue-100 flex items-center justify-between text-[11px] text-blue-900">
-              <div className="flex items-center gap-1.5 font-medium">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Zero Domain Restriction (rzp.io)</span>
-              </div>
-              <span className="font-mono text-[10px] text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded font-bold">
-                100% SECURE
-              </span>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 space-y-5 text-center">
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-                <QrCode className="w-7 h-7 text-[#78350F]" />
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="font-bold text-stone-900 text-base">Complete Payment on Razorpay</h3>
-                <p className="text-xs text-stone-600 leading-relaxed max-w-xs mx-auto">
-                  A new tab with Razorpay's official checkout was opened. Pay using <strong>Google Pay, PhonePe, Paytm, UPI QR, Cards, or NetBanking</strong>.
-                </p>
-              </div>
-
-              {/* Action: Open Tab if not opened */}
-              {hostedPaymentUrl && (
-                <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
-                  <span className="text-[11px] text-stone-500 block">
-                    Did the payment tab not open automatically?
-                  </span>
-                  <a
-                    href={hostedPaymentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-sm transition-colors cursor-pointer"
-                  >
-                    <span>Click Here to Open Razorpay Payment Screen</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                </div>
-              )}
-
-              {/* Live Polling Status */}
-              <div className="flex items-center justify-center gap-2 text-xs text-stone-600 pt-1">
-                <Loader2 className="w-4 h-4 animate-spin text-amber-700" />
-                <span>Waiting for payment confirmation from Razorpay...</span>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => setHostedModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl border border-stone-300 text-stone-600 hover:bg-stone-100 font-semibold text-xs transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleManualCheckStatus}
-                disabled={isCheckingStatus}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {isCheckingStatus ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Verifying with Razorpay...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>I've Completed Payment · Verify Now</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
