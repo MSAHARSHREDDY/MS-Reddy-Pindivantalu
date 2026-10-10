@@ -32,11 +32,12 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     }
   }, [initialSearch]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (overrideTerm?: string) => {
     setLoading(true);
+    const term = overrideTerm !== undefined ? overrideTerm : searchTerm;
     try {
       const res = await api.getProducts({
-        search: searchTerm.trim() || undefined,
+        search: term.trim() || undefined,
         sort: sortOption,
         page,
         limit: 24,
@@ -54,27 +55,25 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     }
   };
 
+  // Re-fetch on sort or page change
   useEffect(() => {
     fetchProducts();
   }, [sortOption, page]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    fetchProducts();
-  };
+  // Live filter on keyword typing (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      fetchProducts(searchTerm);
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const handleClearSearch = () => {
     setSearchTerm('');
     setPage(1);
-    // Fetch immediately after clear
-    api.getProducts({ sort: sortOption, page: 1, limit: 24 }).then((res) => {
-      if (res.success) {
-        setProducts(res.products);
-        setTotalCount(res.totalCount);
-        setTotalPages(res.totalPages || 1);
-      }
-    });
+    fetchProducts('');
   };
 
   return (
@@ -104,7 +103,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
           <div className="flex items-center gap-2.5">
             <button
-              onClick={fetchProducts}
+              onClick={() => fetchProducts()}
               disabled={loading}
               className="p-2.5 bg-white border border-stone-200 rounded-xl hover:bg-stone-50 text-stone-600 transition-colors shadow-2xs"
               title="Refresh Products"
@@ -136,13 +135,13 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           </div>
         </div>
 
-        {/* Clean Search Bar */}
+        {/* Clean Live Search Bar */}
         <div className="w-full">
-          <form onSubmit={handleSearchSubmit} className="relative">
+          <div className="relative">
             <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
             <input
               type="text"
-              placeholder="Search by snack name, ingredients, or taste..."
+              placeholder="Type keyword to filter instantly (e.g. Murukulu, Mixture, Chekkalu, Bellam)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-24 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:outline-none focus:border-amber-800 shadow-2xs"
@@ -151,30 +150,24 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-20 top-2.5 text-stone-400 hover:text-stone-700 p-0.5"
+                className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-700 p-0.5 cursor-pointer"
                 title="Clear search"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
-            <button
-              type="submit"
-              className="absolute right-2 top-1.5 px-3.5 py-1.5 bg-[#451A03] hover:bg-[#78350F] text-[#FEF3C7] text-xs font-semibold rounded-lg shadow-xs transition-colors"
-            >
-              Search
-            </button>
-          </form>
+          </div>
         </div>
       </div>
 
-      {/* Product Grid */}
+      {/* Product Grid - 2 columns on mobile */}
       {loading ? (
         <div className="py-24 flex flex-col items-center justify-center text-stone-400 space-y-3">
           <Loader2 className="w-8 h-8 animate-spin text-amber-700" />
           <p className="text-xs font-medium">Fetching freshly prepared snacks from kitchen...</p>
         </div>
       ) : products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product) => {
             const cat = categories.find((c) => c.id === product.categoryId);
             return (

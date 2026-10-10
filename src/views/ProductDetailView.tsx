@@ -109,17 +109,23 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     );
   }, [product]);
 
+  const basePriceDefaultVariant = React.useMemo(() => {
+    if (!effectiveVariants || effectiveVariants.length === 0) return undefined;
+    const exact = effectiveVariants.find((v) => v.price === product.basePrice);
+    if (exact) return exact;
+    const sortedByDiff = [...effectiveVariants].sort(
+      (a, b) => Math.abs(a.price - product.basePrice) - Math.abs(b.price - product.basePrice)
+    );
+    return sortedByDiff[0] || effectiveVariants[0];
+  }, [effectiveVariants, product.basePrice]);
+
   const selectedVariant = React.useMemo(() => {
     if (selectedVariantId) {
       const found = effectiveVariants.find((v) => v.id === selectedVariantId);
       if (found) return found;
     }
-    return (
-      effectiveVariants.find((v) => v.weight.toLowerCase() === (product.weight || '500g').toLowerCase()) ||
-      effectiveVariants.find((v) => v.weight.toLowerCase() === '500g') ||
-      effectiveVariants[0]
-    );
-  }, [effectiveVariants, selectedVariantId, product.weight]);
+    return basePriceDefaultVariant || effectiveVariants[0];
+  }, [effectiveVariants, selectedVariantId, basePriceDefaultVariant]);
 
   const regularPrice = selectedVariant ? selectedVariant.price : product.basePrice;
   const currentPrice = selectedVariant
@@ -448,7 +454,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               You May Also Love
             </h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {relatedProducts.map((p) => (
               <ProductCard
                 key={p.id}
