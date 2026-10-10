@@ -1,0 +1,580 @@
+{
+  "users": [
+    {
+      "accountStatus": "active",
+      "addresses": [],
+      "createdAt": "2026-10-09T16:22:47.612Z",
+      "email": "superadmin@gmail.com",
+      "id": "usr_1791562967612_lc55j",
+      "name": "superadmin",
+      "passwordHash": "$2b$10$ZhclltOkI5caEy8uNVizlemniQy2hZF8zR0KxrQxT6uC0fklOxIsW",
+      "phone": "+91 9182693953",
+      "role": "admin",
+      "updatedAt": "2026-10-09T16:22:47.612Z"
+    },
+    {
+      "id": "usr_1791251743344_x2kvz",
+      "accountStatus": "active",
+      "addresses": [
+        {
+          "id": "addr_1791561974997_1ujb",
+          "fullName": "Malladi Saharsh Reddy",
+          "phone": "9182693953",
+          "street": "17-88, Plot No-666, Street No-23, HMT Swarnapuri Colony, Ameenpur, Telangana-502032",
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "502032",
+          "landmark": null,
+          "isDefault": true
+        }
+      ],
+      "createdAt": "2026-10-06T01:55:43.344Z",
+      "email": "saharshreddym59@gmail.com",
+      "name": "Malladi Saharsh Reddy",
+      "passwordHash": "$2b$10$kIkxh5jLIrpSngfQlKrL5.m3nI5Wpbz5risgXbYHQjtIRjPC9UpZa",
+      "phone": "9182693953",
+      "role": "customer",
+      "updatedAt": "2026-10-09T16:06:14.997Z"
+    },
+    {
+      "id": "usr_1791423342917_4fhbo",
+      "accountStatus": "active",
+      "addresses": [
+        {
+          "id": "addr_1791423421086_dgyz",
+          "fullName": "Malladi Sandeep Reddy",
+          "phone": "+918374461267",
+          "street": "17-88, Plot No-666, Street No-23, HMT Swarnapuri Colony, Ameenpur, Telangana-502032",
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "502032",
+          "landmark": null,
+          "isDefault": true
+        }
+      ],
+      "createdAt": "2026-10-08T01:35:42.916Z",
+      "email": "sandeepreddym39@gmail.com",
+      "name": "Malladi Sandeep Reddy",
+      "passwordHash": "$2b$10$stJ4yhm9pJJnei/sn3ddTuPD422NJnbafNn.RU2tvi7hG3DH11pp6",
+      "phone": "+918374461267",
+      "role": "customer",
+      "updatedAt": "2026-10-08T01:37:01.086Z"
+    },
+    {
+      "id": "usr_1791501110964_n388c",
+      "accountStatus": "active",
+      "addresses": [
+        {
+          "id": "addr_1791501125163_t606",
+          "fullName": "Malladi Narender Reddy",
+          "phone": "+919849397359",
+          "street": "17-88, Plot No-666, Street No-23, HMT Swarnapuri Colony, Ameenpur, Telangana-502032",
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "502032",
+          "landmark": null,
+          "isDefault": true
+        }
+      ],
+      "createdAt": "2026-10-08T23:11:50.964Z",
+      "email": "narireddym59@gmail.com",
+      "name": "Malladi Narender Reddy",
+      "passwordHash": "$2b$10$t8IQDaf0DXxFWnJ/cypjleN3ej.Mz5umujcZlG75erijmWb0j7ghu",
+      "phone": "+919849397359",
+      "role": "customer",
+      "updatedAt": "2026-10-08T23:12:05.163Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod_butter_murukulu",
+      "name": "Melt-in-Mouth Butter Murukulu",
+      "slug": "melt-in-mouth-butter-murukulu",
+      "description": "Delicately handcrafted spiral chakli infused with pure country butter (Vennamudda), roasted white sesame seeds, and ajwain. Incredibly light, crisp, and golden.",
+      "categoryId": "cat_murukulu",
+      "images": [
+        "/src/assets/images/product_crispy_murukulu_1790935783958.jpg",
+        "/src/assets/images/hero_pindivantalu_traditional_1790935769601.jpg"
+      ],
+      "basePrice": 240,
+      "weight": "500g",
+      "sku": "PV-MUR-001",
+      "variants": [
+        {
+          "id": "prod_butter_murukulu_250g",
+          "weight": "250g",
+          "price": 132,
+          "stockQuantity": 3,
+          "sku": "PV-MUR-001-250G"
+        },
+        {
+          "id": "prod_butter_murukulu_500g",
+          "weight": "500g",
+          "price": 240,
+          "stockQuantity": 4,
+          "sku": "PV-MUR-001-500G"
+        },
+        {
+          "id": "prod_butter_murukulu_1kg",
+          "weight": "1kg",
+          "price": 456,
+          "stockQuantity": 2,
+          "sku": "PV-MUR-001-1KG"
+        }
+      ],
+      "stockQuantity": 9,
+      "lowStockThreshold": 10,
+      "ingredients": [
+        "Premium Rice Flour",
+        "Roasted Bengal Gram Flour",
+        "Pure Butter",
+        "White Sesame Seeds",
+        "Carom Seeds (Vamu)",
+        "Rock Salt",
+        "Sunflower Oil"
+      ],
+      "allergens": [
+        "Dairy (Butter)"
+      ],
+      "shelfLife": "45 Days",
+      "storageInstructions": "Keep in an airtight jar. Do not refrigerate.",
+      "spiceLevel": "Mild",
+      "isVeg": true,
+      "isActive": true,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "displayOrder": 2,
+      "metaTitle": "Crispy Butter Murukulu - Pure Homemade Vennamudda Chakli",
+      "metaDescription": "Authentic Andhra Butter Murukulu crafted fresh with pure butter and sesame seeds.",
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-08T01:37:44.297Z"
+    },
+    {
+      "id": "prod_pappu_chekkalu",
+      "name": "Spicy Pappu Chekkalu",
+      "slug": "spicy-pappu-chekkalu",
+      "description": "Traditional Telugu thin round savory discs pressed by hand, studded with tender soaked chana dal, finely chopped ginger, fresh curry leaves, and green chili paste.",
+      "categoryId": "cat_chekkalu",
+      "images": [
+        "/src/assets/images/product_chekkalu_snack_1790935807445.jpg"
+      ],
+      "basePrice": 230,
+      "weight": "500g",
+      "sku": "PV-CHK-001",
+      "variants": [
+        {
+          "id": "prod_pappu_chekkalu_250g",
+          "weight": "250g",
+          "price": 127,
+          "stockQuantity": 4,
+          "sku": "PV-CHK-001-250G"
+        },
+        {
+          "id": "prod_pappu_chekkalu_500g",
+          "weight": "500g",
+          "price": 230,
+          "stockQuantity": 4,
+          "sku": "PV-CHK-001-500G"
+        },
+        {
+          "id": "prod_pappu_chekkalu_1kg",
+          "weight": "1kg",
+          "price": 437,
+          "stockQuantity": 2,
+          "sku": "PV-CHK-001-1KG"
+        }
+      ],
+      "stockQuantity": 10,
+      "lowStockThreshold": 12,
+      "ingredients": [
+        "Stone Ground Rice Flour",
+        "Chana Dal (Bengal Gram)",
+        "Fresh Green Chilies",
+        "Ginger",
+        "Curry Leaves",
+        "Cumin Seeds",
+        "Refined Sunflower Oil",
+        "Salt"
+      ],
+      "allergens": [],
+      "shelfLife": "45 Days",
+      "storageInstructions": "Store in an airtight container to preserve crispness.",
+      "spiceLevel": "Medium",
+      "isVeg": true,
+      "isActive": true,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "displayOrder": 3,
+      "metaTitle": "Authentic Spicy Pappu Chekkalu - Rice Crackers",
+      "metaDescription": "Handcrafted crunchy Andhra Chekkalu with chana dal and green chilies.",
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-08T22:08:05.948Z"
+    },
+    {
+      "id": "prod_andhra_mixture",
+      "name": "Ribbon Murkulu",
+      "slug": "special-andhra-mixture",
+      "description": "Our signature homemade savory mixture made using heirloom Godavari recipes. Features crisp hand-pressed sev, spicy boondi, crunchy fried peanuts, premium roasted cashews, fried curry leaves, and a secret blend of roasted Guntur red chilies.",
+      "categoryId": "cat_mixtures",
+      "images": [
+        "/src/assets/images/ribbon_murukulu_snack_1791473410296.jpg"
+      ],
+      "basePrice": 20,
+      "weight": "500g",
+      "sku": "PV-MIX-001",
+      "variants": [
+        {
+          "id": "prod_andhra_mixture_250g",
+          "weight": "250g",
+          "price": 10,
+          "stockQuantity": 18,
+          "sku": "PV-MIX-001-250G"
+        },
+        {
+          "id": "prod_andhra_mixture_500g",
+          "weight": "500g",
+          "price": 20,
+          "stockQuantity": 25,
+          "sku": "PV-MIX-001-500G"
+        },
+        {
+          "id": "prod_andhra_mixture_1kg",
+          "weight": "1kg",
+          "price": 40,
+          "stockQuantity": 15,
+          "sku": "PV-MIX-001-1KG"
+        }
+      ],
+      "stockQuantity": 6,
+      "lowStockThreshold": 15,
+      "ingredients": [
+        "Gram Flour (Besan)",
+        "Rice Flour",
+        "Peanuts",
+        "Cashews",
+        "Curry Leaves",
+        "Sunflower Oil",
+        "Guntur Chili Powder",
+        "Hing",
+        "Sea Salt"
+      ],
+      "allergens": [
+        "Peanuts",
+        "Tree Nuts (Cashews)"
+      ],
+      "shelfLife": "60 Days",
+      "storageInstructions": "Store in a dry airtight container away from direct sunlight.",
+      "spiceLevel": "Spicy",
+      "isVeg": true,
+      "isActive": true,
+      "isFeatured": true,
+      "isBestSeller": true,
+      "displayOrder": 1,
+      "metaTitle": "Special Andhra Mixture - Authentic Telugu Homemade Snack",
+      "metaDescription": "Order traditional homemade Andhra Mixture online with roasted cashews, peanuts, and aromatic curry leaves.",
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-09T16:38:26.257Z"
+    },
+    {
+      "id": "prod_1790938055246_1brh",
+      "name": "Guntur Spicy Ribbon Pakoda",
+      "slug": "guntur-spicy-ribbon-pakoda",
+      "description": "Crunchy golden ribbon pakoda spiced with cumin, ajwain and fresh Guntur chili powder",
+      "categoryId": "cat_murukulu",
+      "images": [
+        "/src/assets/images/product_andhra_mixture_1790935795686.jpg"
+      ],
+      "basePrice": 210,
+      "weight": "500g",
+      "sku": "PV-5246",
+      "variants": [
+        {
+          "id": "prod_1790938055246_1brh_250g",
+          "weight": "250g",
+          "price": 116,
+          "stockQuantity": 4,
+          "sku": "PV-5246-250G"
+        },
+        {
+          "id": "prod_1790938055246_1brh_500g",
+          "weight": "500g",
+          "price": 210,
+          "stockQuantity": 3,
+          "sku": "PV-5246-500G"
+        },
+        {
+          "id": "prod_1790938055246_1brh_1kg",
+          "weight": "1kg",
+          "price": 399,
+          "stockQuantity": 2,
+          "sku": "PV-5246-1KG"
+        }
+      ],
+      "stockQuantity": 5,
+      "lowStockThreshold": 10,
+      "ingredients": [],
+      "allergens": [],
+      "shelfLife": "45 Days",
+      "storageInstructions": "Store in an airtight container.",
+      "spiceLevel": "Medium",
+      "isVeg": true,
+      "isActive": true,
+      "isFeatured": false,
+      "isBestSeller": false,
+      "displayOrder": 5,
+      "createdAt": "2026-10-02T10:47:35.246Z",
+      "updatedAt": "2026-10-08T23:12:12.939Z"
+    },
+    {
+      "id": "prod_bellam_gavvalu",
+      "name": "Traditional Bellam Gavvalu",
+      "slug": "traditional-bellam-gavvalu",
+      "description": "Shell-shaped festival sweet delicacies made from flour dough rolled on traditional wooden plank, fried to golden crispness and dipped in fragrant cardamom-infused organic jaggery syrup.",
+      "categoryId": "cat_festive",
+      "images": [
+        "/src/assets/images/category_festive_collection_1790935819627.jpg"
+      ],
+      "basePrice": 260,
+      "weight": "500g",
+      "sku": "PV-GVL-001",
+      "variants": [
+        {
+          "id": "prod_bellam_gavvalu_250g",
+          "weight": "250g",
+          "price": 143,
+          "stockQuantity": 4,
+          "sku": "PV-GVL-001-250G"
+        },
+        {
+          "id": "prod_bellam_gavvalu_500g",
+          "weight": "500g",
+          "price": 260,
+          "stockQuantity": 4,
+          "sku": "PV-GVL-001-500G"
+        },
+        {
+          "id": "prod_bellam_gavvalu_1kg",
+          "weight": "1kg",
+          "price": 494,
+          "stockQuantity": 2,
+          "sku": "PV-GVL-001-1KG"
+        }
+      ],
+      "stockQuantity": 10,
+      "lowStockThreshold": 10,
+      "ingredients": [
+        "Wheat Flour",
+        "Pure Organic Jaggery (Bellam)",
+        "Cardamom Powder",
+        "Ghee",
+        "Sunflower Oil"
+      ],
+      "allergens": [
+        "Gluten",
+        "Dairy (Ghee)"
+      ],
+      "shelfLife": "30 Days",
+      "storageInstructions": "Store in a dry airtight container. Do not expose to moisture.",
+      "spiceLevel": "Mild",
+      "isVeg": true,
+      "isActive": true,
+      "isFeatured": false,
+      "isBestSeller": true,
+      "displayOrder": 4,
+      "metaTitle": "Bellam Gavvalu - Jaggery Sweet Shells",
+      "metaDescription": "Traditional homemade Bellam Gavvalu coated with organic jaggery and cardamom.",
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-08T22:08:05.948Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat_chekkalu",
+      "name": "Chekkalu",
+      "slug": "chekkalu",
+      "description": "Hand-flattened crispy lentil crackers spiced with green chilies, ginger, curry leaves, and tender soaked chana dal.",
+      "image": "/src/assets/images/product_chekkalu_snack_1790935807445.jpg",
+      "parentCategoryId": null,
+      "isActive": true,
+      "displayOrder": 3,
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-02T10:17:29.285Z"
+    },
+    {
+      "id": "cat_festive",
+      "name": "Festival Specials",
+      "slug": "festival-specials",
+      "description": "Handcrafted authentic festival sweets and savories prepared in pure cold-pressed oils and organic Telugu jaggery.",
+      "image": "/src/assets/images/category_festive_collection_1790935819627.jpg",
+      "parentCategoryId": null,
+      "isActive": true,
+      "displayOrder": 4,
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-02T10:17:29.285Z"
+    },
+    {
+      "id": "cat_murukulu",
+      "name": "Murukulu",
+      "slug": "murukulu",
+      "description": "Traditional crispy spiral chakli & janthikalu made with premium rice flour, roasted gram and fragrant carom seeds.",
+      "image": "/src/assets/images/product_crispy_murukulu_1790935783958.jpg",
+      "parentCategoryId": null,
+      "isActive": true,
+      "displayOrder": 1,
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-02T10:17:29.285Z"
+    },
+    {
+      "id": "cat_mixtures",
+      "name": "Mixtures",
+      "slug": "mixtures",
+      "description": "Zesty savory Telugu mixtures loaded with golden boondi, crunchy sev, fried peanuts, cashews, and aromatic curry leaves.",
+      "image": "/src/assets/images/product_andhra_mixture_1790935795686.jpg",
+      "parentCategoryId": null,
+      "isActive": true,
+      "displayOrder": 2,
+      "createdAt": "2026-10-02T10:17:29.285Z",
+      "updatedAt": "2026-10-02T10:17:29.285Z"
+    }
+  ],
+  "orders": [],
+  "carts": [
+    {
+      "userId": "usr_customer_1",
+      "items": [],
+      "updatedAt": "2026-10-02T10:17:29.285Z"
+    },
+    {
+      "userId": "guest_1790936342947_o51syx",
+      "items": [],
+      "updatedAt": "2026-10-09T16:12:50.336Z"
+    },
+    {
+      "userId": "usr_1791244133294_278ad",
+      "items": [],
+      "updatedAt": "2026-10-06T00:36:44.402Z"
+    },
+    {
+      "userId": "usr_1791247223107_0vd63",
+      "items": [],
+      "updatedAt": "2026-10-06T00:41:11.577Z"
+    },
+    {
+      "userId": "usr_1791251743344_x2kvz",
+      "items": [],
+      "updatedAt": "2026-10-09T16:40:29.959Z"
+    },
+    {
+      "userId": "usr_1791302146228_ahm2j",
+      "items": [],
+      "updatedAt": "2026-10-07T00:37:20.340Z"
+    },
+    {
+      "userId": "test_guest_999",
+      "items": [],
+      "updatedAt": "2026-10-07T00:05:09.865Z"
+    },
+    {
+      "userId": "usr_1791333684056_jclzp",
+      "items": [],
+      "updatedAt": "2026-10-07T00:43:26.400Z"
+    },
+    {
+      "userId": "usr_1791418270171_g7s97",
+      "items": [
+        {
+          "id": "item_1791418853413_2nid",
+          "productId": "prod_butter_murukulu",
+          "variantId": "v_mur_250",
+          "quantity": 1,
+          "addedAt": "2026-10-08T00:20:53.413Z"
+        }
+      ],
+      "updatedAt": "2026-10-08T00:20:53.413Z"
+    },
+    {
+      "userId": "test_rzp_guest",
+      "items": [],
+      "updatedAt": "2026-10-08T00:44:02.284Z"
+    },
+    {
+      "userId": "usr_1791423342917_4fhbo",
+      "items": [
+        {
+          "id": "item_1791561331477_xaks",
+          "productId": "prod_andhra_mixture",
+          "variantId": "prod_andhra_mixture_250g",
+          "quantity": 1,
+          "addedAt": "2026-10-09T15:55:31.477Z"
+        }
+      ],
+      "updatedAt": "2026-10-09T15:55:31.477Z"
+    },
+    {
+      "userId": "usr_1791562967612_lc55j",
+      "items": [],
+      "updatedAt": "2026-10-09T16:34:50.883Z"
+    }
+  ],
+  "coupons": [
+    {
+      "id": "cpn_pindi10",
+      "code": "PINDI10",
+      "discountType": "percentage",
+      "discountValue": 10,
+      "minimumOrderValue": 299,
+      "maximumDiscount": 100,
+      "validUntil": "2027-12-31T23:59:59Z",
+      "usageLimit": 500,
+      "usageCount": 12,
+      "isActive": true,
+      "createdAt": "2026-10-02T10:17:29.285Z"
+    },
+    {
+      "id": "cpn_festive50",
+      "code": "FESTIVE50",
+      "discountType": "fixed",
+      "discountValue": 50,
+      "minimumOrderValue": 499,
+      "validUntil": "2027-12-31T23:59:59Z",
+      "usageLimit": 200,
+      "usageCount": 8,
+      "isActive": true,
+      "createdAt": "2026-10-02T10:17:29.285Z"
+    },
+    {
+      "id": "cpn_welcome",
+      "code": "WELCOME100",
+      "discountType": "fixed",
+      "discountValue": 100,
+      "minimumOrderValue": 699,
+      "validUntil": "2027-12-31T23:59:59Z",
+      "usageLimit": 1000,
+      "usageCount": 25,
+      "isActive": true,
+      "createdAt": "2026-10-02T10:17:29.285Z"
+    }
+  ],
+  "settings": {
+    "storeName": "MS Reddy PindiVantalu",
+    "tagline": "Taste the Tradition of Homemade Andhra Snacks",
+    "supportPhone": "+91 98765 43210",
+    "whatsappNumber": "+919876543210",
+    "supportEmail": "orders@pindivantalu.com",
+    "storeAddress": "Traditional Kitchens, Madhapur, Hyderabad, Telangana 500081",
+    "freeDeliveryThreshold": 0,
+    "standardDeliveryFee": 0,
+    "codEnabled": true,
+    "onlinePaymentEnabled": true,
+    "bannerNotice": {
+      "enabled": false,
+      "text": "",
+      "linkUrl": "/products"
+    },
+    "seoDefaults": {
+      "title": "MS Reddy PindiVantalu - Traditional Telugu Homemade Snacks & Sweets",
+      "description": "Order authentic Telugu MS Reddy PindiVantalu, crispy Murukulu, Andhra Mixture, Chekkalu, and sweets delivered to your doorstep."
+    },
+    "updatedAt": "2026-10-02T10:17:29.285Z"
+  }
+}
