@@ -3,8 +3,7 @@
 .gitignore
 node_modules
 dist
-.env
-.env.*
-!.env.example
+# .env is deployed with Cloud Run so server can read variables directly
+!.env
 README.md
 bun.lock

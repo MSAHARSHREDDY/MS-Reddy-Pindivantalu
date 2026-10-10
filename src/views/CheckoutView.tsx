@@ -581,6 +581,17 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({ onBack, onOrderSucce
                 }`} />
                 <div className="flex-1 space-y-1">
                   <p className="font-semibold">{error}</p>
+                  {error.toLowerCase().includes('authentication') && (
+                    <div className="pt-1.5 space-y-1.5 text-[11px] text-rose-800 leading-relaxed border-t border-rose-200">
+                      <p>
+                        <strong>How to resolve:</strong> Razorpay rejected the API Key ID or Key Secret on the server.
+                      </p>
+                      <ul className="list-disc pl-4 space-y-0.5">
+                        <li>Verify that <code className="bg-rose-100 px-1 py-0.5 rounded font-mono font-semibold">RAZORPAY_KEY_ID</code> and <code className="bg-rose-100 px-1 py-0.5 rounded font-mono font-semibold">RAZORPAY_KEY_SECRET</code> in your Cloud Run Environment Variables or <code className="bg-rose-100 px-1 py-0.5 rounded font-mono font-semibold">.env</code> match without quotes or spaces.</li>
+                        <li>Check your Razorpay Dashboard (Settings &gt; API Keys) to confirm the key is in Active status.</li>
+                      </ul>
+                    </div>
+                  )}
                   {(error.toLowerCase().includes('mismatch') || error.toLowerCase().includes('website') || error.toLowerCase().includes('domain')) && (
                     <div className="pt-1.5 space-y-2 text-[11px] text-amber-900 leading-relaxed border-t border-amber-200">
                       <p>
