@@ -1,0 +1,8 @@
+# robots.txt for Sahadeep Reddy's PindiVantalu
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+# Sitemap reference for Google Search Console and crawlers
+Sitemap: https://www.sahadeep-reddys.in/sitemap.xml

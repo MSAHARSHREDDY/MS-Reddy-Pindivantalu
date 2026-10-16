@@ -1,0 +1,9 @@
+.gcloudignore
+.git
+.gitignore
+node_modules
+dist
+# .env is deployed with Cloud Run so server can read variables directly
+!.env
+README.md
+bun.lock
