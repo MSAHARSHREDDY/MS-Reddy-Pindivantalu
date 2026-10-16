@@ -24,7 +24,7 @@ import { AdminDashboard } from './views/admin/AdminDashboard';
 import { PolicyView } from './views/PolicyView';
 import { POLICIES } from './constants/policies';
 
-import { CheckCircle2, X, AlertCircle } from 'lucide-react';
+import { CheckCircle2, X, AlertCircle, Loader2 } from 'lucide-react';
 import { Product, Category, Order, StoreSettings } from './types';
 import { api } from './services/api';
 import { useAuth } from './context/AuthContext';
@@ -52,6 +52,19 @@ export function AppContent() {
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
   const [orderConfirmationModalOpen, setOrderConfirmationModalOpen] = useState(false);
   const [trackOrderId, setTrackOrderId] = useState<string | undefined>(undefined);
+  const [targetProductSlug, setTargetProductSlug] = useState<string | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return (
+        params.get('slug') ||
+        params.get('id') ||
+        params.get('param') ||
+        localStorage.getItem('pindi_last_product_slug') ||
+        undefined
+      );
+    }
+    return undefined;
+  });
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -80,6 +93,31 @@ export function AppContent() {
 
       if (prodRes.success && prodRes.products) {
         setProducts(prodRes.products);
+
+        // Immediate hydration if on product page
+        if (typeof window !== 'undefined') {
+          const pathname = window.location.pathname;
+          if (pathname === '/product' || pathname === '/product-detail') {
+            const params = new URLSearchParams(window.location.search);
+            const slug =
+              params.get('slug') ||
+              params.get('id') ||
+              params.get('param') ||
+              localStorage.getItem('pindi_last_product_slug') ||
+              undefined;
+            if (slug) {
+              const found =
+                prodRes.products.find(
+                  (p: Product) => p.slug === slug || p.id === slug || p.slug.toLowerCase() === slug.toLowerCase()
+                ) || prodRes.products[0];
+              if (found) {
+                setSelectedProduct(found);
+              }
+            } else if (prodRes.products.length > 0) {
+              setSelectedProduct(prodRes.products[0]);
+            }
+          }
+        }
       }
       if (catRes.success && catRes.categories) {
         setCategories(catRes.categories);
@@ -91,6 +129,31 @@ export function AppContent() {
       console.error('Failed to load store data:', err);
     }
   };
+
+  // Keep selectedProduct in sync when products arrive or route changes
+  useEffect(() => {
+    if (products.length > 0 && currentView === 'product-detail') {
+      if (!selectedProduct) {
+        const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const slug =
+          params?.get('slug') ||
+          params?.get('id') ||
+          params?.get('param') ||
+          targetProductSlug ||
+          (typeof window !== 'undefined' ? localStorage.getItem('pindi_last_product_slug') : null);
+
+        let found = products.find(
+          (p) => p.slug === slug || p.id === slug || (slug && p.slug.toLowerCase() === slug.toLowerCase())
+        );
+        if (!found && products.length > 0) {
+          found = products[0];
+        }
+        if (found) {
+          setSelectedProduct(found);
+        }
+      }
+    }
+  }, [products, currentView, targetProductSlug, selectedProduct]);
 
   useEffect(() => {
     loadStoreData();
@@ -121,8 +184,15 @@ export function AppContent() {
         view = 'profile';
       } else if (pathname === '/admin') {
         view = 'admin';
-      } else if (pathname === '/product') {
+      } else if (pathname === '/product' || pathname === '/product-detail') {
         view = 'product-detail';
+        param = params.get('slug') || params.get('id') || params.get('param') || undefined;
+        if (!param && typeof window !== 'undefined') {
+          param = localStorage.getItem('pindi_last_product_slug') || undefined;
+        }
+        if (param) {
+          setTargetProductSlug(param);
+        }
       } else if (pathname === '/order-confirmation') {
         view = 'order-confirmation';
       } else {
@@ -167,6 +237,14 @@ export function AppContent() {
     if (view === 'track') {
       setTrackOrderId(param || undefined);
     }
+    if (view === 'product-detail') {
+      if (param) {
+        setTargetProductSlug(param);
+        try {
+          localStorage.setItem('pindi_last_product_slug', param);
+        } catch (e) {}
+      }
+    }
 
     if (updateHistory && typeof window !== 'undefined') {
       let url = '/';
@@ -178,6 +256,8 @@ export function AppContent() {
         url = param && param !== 'all' ? `/catalog?category=${param}` : '/catalog';
       } else if (view === 'track') {
         url = param ? `/track?orderId=${encodeURIComponent(param)}` : '/track';
+      } else if (view === 'product-detail') {
+        url = param ? `/product?slug=${encodeURIComponent(param)}` : '/product';
       } else {
         url = `/${view}`;
       }
@@ -189,7 +269,12 @@ export function AppContent() {
 
   const handleSelectProduct = (product: Product) => {
     setSelectedProduct(product);
-    navigateTo('product-detail');
+    const slug = product.slug || product.id;
+    setTargetProductSlug(slug);
+    try {
+      localStorage.setItem('pindi_last_product_slug', slug);
+    } catch (e) {}
+    navigateTo('product-detail', slug);
   };
 
   const handleOrderSuccess = (order: Order) => {
@@ -262,13 +347,24 @@ export function AppContent() {
           />
         )}
 
-        {currentView === 'product-detail' && selectedProduct && (
-          <ProductDetailView
-            product={selectedProduct}
-            onBack={() => navigateTo('catalog')}
-            onSelectProduct={handleSelectProduct}
-            onCheckoutDirect={() => navigateTo('checkout')}
-          />
+        {currentView === 'product-detail' && (
+          selectedProduct ? (
+            <ProductDetailView
+              product={selectedProduct}
+              allProducts={products}
+              onBack={() => navigateTo('catalog')}
+              onSelectProduct={handleSelectProduct}
+              onCheckoutDirect={() => navigateTo('checkout')}
+            />
+          ) : (
+            <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4">
+              <Loader2 className="w-8 h-8 text-amber-700 animate-spin mx-auto" />
+              <div>
+                <h3 className="text-base font-bold text-stone-900">Loading snack details...</h3>
+                <p className="text-xs text-stone-500 mt-1">Preparing your traditional snack view</p>
+              </div>
+            </div>
+          )
         )}
 
         {currentView === 'checkout' && (

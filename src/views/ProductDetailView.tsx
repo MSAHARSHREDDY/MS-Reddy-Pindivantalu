@@ -17,6 +17,7 @@ import { api } from '../services/api';
 
 interface ProductDetailViewProps {
   product: Product;
+  allProducts?: Product[];
   onBack: () => void;
   onSelectProduct: (product: Product) => void;
   onCheckoutDirect: () => void;
@@ -24,6 +25,7 @@ interface ProductDetailViewProps {
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   product: initialProduct,
+  allProducts,
   onBack,
   onSelectProduct,
   onCheckoutDirect,
@@ -46,10 +48,20 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     api.getProductBySlug(initialProduct.slug || initialProduct.id).then((res) => {
       if (res.success) {
         if (res.product) setProduct(res.product);
-        if (res.relatedProducts) setRelatedProducts(res.relatedProducts);
+        if (res.relatedProducts && res.relatedProducts.length > 0) {
+          setRelatedProducts(res.relatedProducts);
+        } else if (allProducts && allProducts.length > 0) {
+          setRelatedProducts(allProducts.filter((p) => p.id !== initialProduct.id).slice(0, 4));
+        } else {
+          api.getProducts({ limit: 8 }).then((pRes) => {
+            if (pRes.success && pRes.products) {
+              setRelatedProducts(pRes.products.filter((p: Product) => p.id !== initialProduct.id).slice(0, 4));
+            }
+          });
+        }
       }
     });
-  }, [initialProduct]);
+  }, [initialProduct, allProducts]);
 
   const effectiveVariants: ProductVariant[] = React.useMemo(() => {
     const list = [...(product.variants || [])];
@@ -212,14 +224,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       </button>
 
       {/* Contiguous Purchase Module & Gallery */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* Left Gallery Column */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="aspect-square sm:aspect-4/3 w-full bg-white rounded-2xl overflow-hidden border border-amber-300/40 shadow-md relative group flex items-center justify-center p-0">
+        <div className="lg:col-span-6 space-y-4">
+          <div className="aspect-square w-full bg-stone-100 rounded-2xl overflow-hidden border border-stone-200/90 shadow-md relative group flex items-center justify-center p-0">
             {/* Ambient warm radial glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(245,158,11,0.2),transparent_75%)] pointer-events-none" />
-            <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-400/25 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-orange-400/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(245,158,11,0.15),transparent_75%)] pointer-events-none" />
+            <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-orange-400/15 rounded-full blur-2xl pointer-events-none" />
 
             {(images[activeImageIndex] || images[0]) ? (
               <img
@@ -227,7 +239,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 alt={product.name}
                 title={product.name}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-contain max-h-full max-w-full drop-shadow-sm group-hover:scale-102 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-stone-50">
@@ -247,13 +259,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 bg-[#FAF6EE] transition-all shrink-0 p-1 ${
+                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 bg-white transition-all shrink-0 p-0 cursor-pointer ${
                     activeImageIndex === idx
-                      ? 'border-[#78350F] ring-2 ring-amber-200'
+                      ? 'border-[#78350F] ring-2 ring-amber-300'
                       : 'border-stone-200 opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-contain" />
+                  <img src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -261,7 +273,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>
 
         {/* Right Purchase Module */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
+        <div className="lg:col-span-6 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             {/* Zero-Pill Unboxed Metadata */}
             <div className="flex items-center gap-2 text-xs text-stone-500 font-medium">
@@ -436,85 +448,31 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         </div>
       </div>
 
-      {/* Product Details Specs (Ingredients, Allergens, Storage) */}
-      <div className="bg-white rounded-2xl border border-stone-200/80 p-6 sm:p-8 space-y-6">
-        <h3 className="font-display text-xl font-bold text-stone-900 border-b border-stone-100 pb-3">
-          Ingredients & Preparation Details
-        </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs leading-relaxed">
-          {/* Ingredients */}
-          <div className="space-y-2">
-            <h4 className="font-bold text-stone-800 uppercase tracking-wider text-[11px]">
-              Ingredients
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
-              {product.ingredients && product.ingredients.length > 0 ? (
-                product.ingredients.map((ing, i) => (
-                  <span
-                    key={i}
-                    className="bg-stone-100 text-stone-700 px-2.5 py-1 rounded text-xs"
-                  >
-                    {ing}
-                  </span>
-                ))
-              ) : (
-                <span className="text-stone-500">Pure traditional kitchen ingredients.</span>
-              )}
-            </div>
-          </div>
 
-          {/* Allergens & Spice */}
-          <div className="space-y-2">
-            <h4 className="font-bold text-stone-800 uppercase tracking-wider text-[11px]">
-              Allergen Notice
-            </h4>
-            {product.allergens && product.allergens.length > 0 ? (
-              <p className="text-stone-600">
-                Contains: <strong className="text-stone-800">{product.allergens.join(', ')}</strong>.
-              </p>
-            ) : (
-              <p className="text-stone-500">No common allergens listed.</p>
-            )}
-            <p className="text-stone-500 pt-1">
-              Dietary: <strong className="text-emerald-800 font-semibold">100% Pure Vegetarian</strong>
-            </p>
-          </div>
-
-          {/* Storage instructions */}
-          <div className="space-y-2">
-            <h4 className="font-bold text-stone-800 uppercase tracking-wider text-[11px]">
-              Storage & Freshness
-            </h4>
-            <p className="text-stone-600">
-              {product.storageInstructions || 'Store in an airtight container in a dry place.'}
-            </p>
-            <p className="text-stone-500">
-              Shelf Life: <strong>{product.shelfLife || '45-60 Days'}</strong> from dispatch date.
-            </p>
-          </div>
+      {/* Related Products - Always mentioned for every product */}
+      <div className="space-y-6 pt-6 border-t border-stone-200">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-2xl font-bold text-stone-900">
+            You May Also Love
+          </h3>
+          <span className="text-xs font-semibold text-amber-800">
+            Authentic Traditional Snacks
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {(relatedProducts.length > 0
+            ? relatedProducts
+            : (allProducts || []).filter((p) => p.id !== product.id).slice(0, 4)
+          ).map((p) => (
+            <ProductCard
+              key={p.id}
+              product={p}
+              onSelect={(selected) => onSelectProduct(selected)}
+            />
+          ))}
         </div>
       </div>
-
-      {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <div className="space-y-6 pt-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display text-2xl font-bold text-stone-900">
-              You May Also Love
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {relatedProducts.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                onSelect={(selected) => onSelectProduct(selected)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

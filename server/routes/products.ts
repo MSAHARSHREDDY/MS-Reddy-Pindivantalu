@@ -131,10 +131,17 @@ productsRouter.get('/:slug', (req: AuthenticatedRequest, res: Response): void =>
     // Get category info
     const category = db.categories.find((c) => c.id === product.categoryId);
 
-    // Get related products from same category
-    const relatedProducts = db.products
+    // Get related products: prioritize same category, then fallback to other active snacks so "You May Also Love" always has products
+    let relatedProducts = db.products
       .filter((p) => p.isActive && p.categoryId === product.categoryId && p.id !== product.id)
       .slice(0, 4);
+
+    if (relatedProducts.length < 4) {
+      const moreProducts = db.products.filter(
+        (p) => p.isActive && p.id !== product.id && !relatedProducts.some((r) => r.id === p.id)
+      );
+      relatedProducts = [...relatedProducts, ...moreProducts].slice(0, 4);
+    }
 
     res.json({
       success: true,

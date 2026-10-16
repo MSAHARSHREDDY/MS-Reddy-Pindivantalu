@@ -164,15 +164,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryName,
   return (
     <div
       onClick={() => onSelect(product)}
-      className="product-card-continuous-border ambient-product-card group relative flex flex-col p-[2.5px] rounded-2xl cursor-pointer"
+      className="group relative flex flex-col bg-white border border-stone-200/90 hover:border-amber-500 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-all duration-300"
     >
-      <div className="relative flex flex-col w-full h-full bg-white rounded-[13.5px] overflow-hidden">
+      <div className="relative flex flex-col w-full h-full bg-white overflow-hidden">
         {/* Ambient warm radial glow behind product frame */}
         <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-amber-400/20 via-orange-300/10 to-transparent rounded-full blur-2xl pointer-events-none group-hover:from-amber-400/35 transition-all duration-500" />
         <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-gradient-to-tr from-amber-500/15 via-yellow-400/10 to-transparent rounded-full blur-xl pointer-events-none group-hover:from-amber-500/25 transition-all duration-500" />
 
-        {/* Product Image Frame - Flush with card, seamless white background, no gaps */}
-        <div className="relative aspect-square w-full bg-white overflow-hidden flex items-center justify-center p-0">
+        {/* Product Image Frame - Flush with card, seamless fit with border, no gap */}
+        <div className="relative aspect-square w-full bg-stone-100 overflow-hidden flex items-center justify-center p-0">
           {!imgError && imageSrc ? (
             <img
               src={imageSrc}
@@ -180,7 +180,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryName,
               title={product.name}
               referrerPolicy="no-referrer"
               onError={() => setImgError(true)}
-              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-400 p-4">
