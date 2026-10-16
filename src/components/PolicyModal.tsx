@@ -26,11 +26,11 @@ const POLICIES: PolicyContent[] = [
     sections: [
       {
         heading: 'Perishable Food Products Notice',
-        body: 'At Sahadeep Reddy\'s PindiVantalu, all our snacks—including crispy Murukulu, authentic Chekkalu, Boondi, Gavvalu, and savory mixtures—are freshly handcrafted in small kitchen batches with pure cold-pressed oils and stone-ground flours. Because our food delicacies are consumable and perishable, we do not accept arbitrary returns once delivered to maintain the highest food safety and hygiene standards.',
+        body: 'At Sahadeep Reddy’s PindiVantalu, all our snacks—including crispy Murukulu, authentic Chekkalu, Boondi, Gavvalu, and savory mixtures—are freshly prepared in small batches with care and attention to quality. Because our food products are consumable and perishable, we do not accept returns for reasons such as a change of mind once an order has been delivered. However, if you receive a damaged, incorrect, or spoiled product, please contact us promptly so we can review the issue and assist you appropriately. We are committed to maintaining food safety, hygiene, and customer satisfaction.',
       },
       {
         heading: 'Damaged, Tampered, or Defective Deliveries',
-        body: 'If your order arrives damaged, with broken tamper-evident seals, or in an unsatisfactory condition, please report it to our customer care team within 24 hours of delivery. Please provide your order number and photograph/video evidence of the packaging to orders@pindivantalu.com or via WhatsApp at +91 98765 43210.',
+        body: 'If your order arrives damaged, with broken tamper-evident seals, or in an unsatisfactory condition, please report it to our customer care team within 24 hours of delivery. Please provide your order number and photograph/video evidence of the packaging to via WhatsApp at +91 9182693953 or +91 9849397359.',
       },
       {
         heading: 'Replacement & Full Refund Processing',
@@ -50,19 +50,19 @@ const POLICIES: PolicyContent[] = [
     sections: [
       {
         heading: 'Kitchen Dispatch Timelines',
-        body: 'Every order placed at Sahadeep Reddy\'s is prepared fresh upon order placement. Batches are freshly prepared, cooled, nitrogen-sealed into multi-layer food-grade barrier pouches, and dispatched from our kitchen within 24 hours.',
+        body: 'Every order placed at Sahadeep Reddy’s PindiVantalu is prepared with care to maintain freshness and quality. Our traditional snacks are prepared in batches, allowed to cool, and packed in food-grade packaging to help preserve their taste and freshness. Orders are carefully packed and dispatched according to product availability and preparation schedules. We strive to deliver fresh, delicious traditional snacks to your doorstep.',
       },
       {
         heading: 'Delivery Destinations & Transit Times',
-        body: 'Delivery of orders is completed between 1-4 days across India:\n• Hyderabad & Secunderabad: 1 to 2 days from dispatch.\n• Andhra Pradesh & Telangana: 1 to 3 days.\n• Rest of India: 2 to 4 days via express courier network.',
+        body: 'We deliver our freshly prepared traditional snacks across India within **1–4 business days**, depending on your location and courier availability. Orders are carefully packed to maintain freshness and quality.',
       },
       {
-        heading: 'Protective Crispness Packaging',
-        body: 'To ensure your murukulu and chekkalu reach you in prime, crunchy condition without getting crushed in transit, we pack each pouch inside corrugated 5-ply shock-absorbing outer boxes with bubble cushioning.',
+        heading: 'Careful & Secure Packaging',
+        body: 'Our traditional snacks are carefully packed in food-grade packaging to help preserve their freshness, taste, and crunchiness during transit. Each order is packed with care to minimize the risk of damage during delivery.',
       },
       {
-        heading: 'Real-time Tracking & Notifications',
-        body: 'Once your package is handed over to our logistics partner (Delhivery, BlueDart, DTDC, or Speed Post), you will receive SMS and WhatsApp tracking links. You can also monitor your live fulfillment milestones directly in our order tracking portal using your order ID.',
+        heading: 'Order Tracking & Delivery Updates',
+        body: 'Once your order is dispatched, tracking details will be shared when available so you can follow your shipment’s progress. You can also check your order status through our order tracking portal using your order ID.',
       },
     ],
   },
@@ -187,11 +187,10 @@ export const PolicyModal: React.FC<PolicyModalProps> = ({
               <button
                 key={p.id}
                 onClick={() => setActivePolicy(p.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  isTabActive
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${isTabActive
                     ? 'bg-[#451A03] text-[#FEF3C7] shadow-sm'
                     : 'bg-white text-stone-600 hover:bg-stone-100 hover:text-stone-900 border border-stone-200/80'
-                }`}
+                  }`}
               >
                 <TabIcon className="w-3.5 h-3.5" />
                 <span>{p.title}</span>
